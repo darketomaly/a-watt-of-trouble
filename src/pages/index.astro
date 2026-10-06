@@ -8,9 +8,106 @@
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>A Watt of Trouble</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<main class="scene" aria-label="Interactive artwork">
+			<img class="layer layer-background" src="/bg.png" alt="" aria-hidden="true" />
+			<img class="layer layer-foreground" src="/fg.png" alt="" aria-hidden="true" />
+		</main>
+
+		<script>
+			const scene = document.querySelector('.scene');
+			const layers = document.querySelectorAll('.layer');
+			const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+			if (scene && layers.length > 0 && !reduceMotion.matches) {
+				let targetX = 0;
+				let targetY = 0;
+				let currentX = 0;
+				let currentY = 0;
+				let animationFrame;
+
+				const updateTarget = (event) => {
+					targetX = (event.clientX / window.innerWidth - 0.5) * 2;
+					targetY = (event.clientY / window.innerHeight - 0.5) * 2;
+				};
+
+				const animate = () => {
+					currentX += (targetX - currentX) * 0.08;
+					currentY += (targetY - currentY) * 0.08;
+
+					layers.forEach((layer) => {
+						const depth = Number(layer.getAttribute('data-depth') ?? 1);
+						layer.style.transform = `translate3d(${currentX * depth}px, ${currentY * depth}px, 0)`;
+					});
+
+					animationFrame = requestAnimationFrame(animate);
+				};
+
+				scene.addEventListener('pointermove', updateTarget);
+				scene.addEventListener('pointerleave', () => {
+					targetX = 0;
+					targetY = 0;
+				});
+				layers[0].setAttribute('data-depth', '8');
+				layers[1].setAttribute('data-depth', '18');
+				animationFrame = requestAnimationFrame(animate);
+
+				window.addEventListener('pagehide', () => {
+					cancelAnimationFrame(animationFrame);
+				});
+			}
+		</script>
 	</body>
 </html>
+
+<style>
+	:global(*) {
+		box-sizing: border-box;
+	}
+
+	:global(html),
+	:global(body) {
+		margin: 0;
+		min-width: 100%;
+		min-height: 100%;
+		overflow: hidden;
+		background: #090b12;
+	}
+
+	.scene {
+		position: relative;
+		width: 100vw;
+		height: 100svh;
+		overflow: hidden;
+		isolation: isolate;
+	}
+
+	.layer {
+		position: absolute;
+		inset: -2.5%;
+		width: 105%;
+		height: 105%;
+		max-width: none;
+		object-fit: cover;
+		object-position: center;
+		user-select: none;
+		pointer-events: none;
+		will-change: transform;
+	}
+
+	.layer-background {
+		z-index: 0;
+	}
+
+	.layer-foreground {
+		z-index: 1;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.layer {
+			transform: none !important;
+		}
+	}
+</style>
