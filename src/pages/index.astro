@@ -34,6 +34,7 @@ import '@fontsource/rajdhani/500.css';
 				let animationFrame;
 				let orientationBaseBeta;
 				let orientationBaseGamma;
+				let orientationEnabled = false;
 
 				const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
@@ -47,20 +48,26 @@ import '@fontsource/rajdhani/500.css';
 
 					orientationBaseBeta ??= event.beta;
 					orientationBaseGamma ??= event.gamma;
-					targetX = clamp((event.gamma - orientationBaseGamma) / 24, -1, 1);
-					targetY = clamp((event.beta - orientationBaseBeta) / 24, -1, 1);
+					targetX = clamp((event.gamma - orientationBaseGamma) / 8, -1, 1);
+					targetY = clamp((event.beta - orientationBaseBeta) / 8, -1, 1);
 				};
 
 				const enableOrientation = async () => {
-					if (!('DeviceOrientationEvent' in window)) return;
+					if (!('DeviceOrientationEvent' in window) || orientationEnabled) return true;
 
 					const orientationEvent = window.DeviceOrientationEvent;
 					if (typeof orientationEvent.requestPermission === 'function') {
-						const permission = await orientationEvent.requestPermission();
-						if (permission !== 'granted') return;
+						try {
+							const permission = await orientationEvent.requestPermission();
+							if (permission !== 'granted') return false;
+						} catch {
+							return false;
+						}
 					}
 
 					window.addEventListener('deviceorientation', updateOrientation, { passive: true });
+					orientationEnabled = true;
+					return true;
 				};
 
 				const animate = () => {
@@ -80,9 +87,19 @@ import '@fontsource/rajdhani/500.css';
 					targetX = 0;
 					targetY = 0;
 				});
-				scene.addEventListener('pointerdown', enableOrientation, { once: true });
-				if (!('requestPermission' in (window.DeviceOrientationEvent ?? {}))) {
-					enableOrientation();
+				const orientationRequiresPermission =
+					'DeviceOrientationEvent' in window &&
+					typeof window.DeviceOrientationEvent.requestPermission === 'function';
+
+				const retryOrientation = async () => {
+					if (await enableOrientation()) {
+						window.removeEventListener('pointerdown', retryOrientation);
+					}
+				};
+
+				enableOrientation();
+				if (orientationRequiresPermission) {
+					window.addEventListener('pointerdown', retryOrientation, { passive: true });
 				}
 				layers[0].setAttribute('data-depth', '8');
 				layers[1].setAttribute('data-depth', '18');
