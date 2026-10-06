@@ -32,10 +32,35 @@ import '@fontsource/rajdhani/500.css';
 				let currentX = 0;
 				let currentY = 0;
 				let animationFrame;
+				let orientationBaseBeta;
+				let orientationBaseGamma;
+
+				const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
 				const updateTarget = (event) => {
 					targetX = (event.clientX / window.innerWidth - 0.5) * 2;
 					targetY = (event.clientY / window.innerHeight - 0.5) * 2;
+				};
+
+				const updateOrientation = (event) => {
+					if (event.beta === null || event.gamma === null) return;
+
+					orientationBaseBeta ??= event.beta;
+					orientationBaseGamma ??= event.gamma;
+					targetX = clamp((event.gamma - orientationBaseGamma) / 30, -1, 1);
+					targetY = clamp((event.beta - orientationBaseBeta) / 30, -1, 1);
+				};
+
+				const enableOrientation = async () => {
+					if (!('DeviceOrientationEvent' in window)) return;
+
+					const orientationEvent = window.DeviceOrientationEvent;
+					if (typeof orientationEvent.requestPermission === 'function') {
+						const permission = await orientationEvent.requestPermission();
+						if (permission !== 'granted') return;
+					}
+
+					window.addEventListener('deviceorientation', updateOrientation, { passive: true });
 				};
 
 				const animate = () => {
@@ -55,6 +80,10 @@ import '@fontsource/rajdhani/500.css';
 					targetX = 0;
 					targetY = 0;
 				});
+				scene.addEventListener('pointerdown', enableOrientation, { once: true });
+				if (!('requestPermission' in (window.DeviceOrientationEvent ?? {}))) {
+					enableOrientation();
+				}
 				layers[0].setAttribute('data-depth', '8');
 				layers[1].setAttribute('data-depth', '18');
 				animationFrame = requestAnimationFrame(animate);
