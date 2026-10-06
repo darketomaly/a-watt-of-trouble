@@ -47,8 +47,8 @@ import '@fontsource/rajdhani/500.css';
 
 					orientationBaseBeta ??= event.beta;
 					orientationBaseGamma ??= event.gamma;
-					targetX = clamp((event.gamma - orientationBaseGamma) / 30, -1, 1);
-					targetY = clamp((event.beta - orientationBaseBeta) / 30, -1, 1);
+					targetX = clamp((event.gamma - orientationBaseGamma) / 24, -1, 1);
+					targetY = clamp((event.beta - orientationBaseBeta) / 24, -1, 1);
 				};
 
 				const enableOrientation = async () => {
@@ -151,9 +151,9 @@ import '@fontsource/rajdhani/500.css';
 
 	.layer {
 		position: absolute;
-		inset: -2.5%;
-		width: 105%;
-		height: 105%;
+		inset: -7.5%;
+		width: 115%;
+		height: 115%;
 		max-width: none;
 		object-fit: cover;
 		object-position: center;
