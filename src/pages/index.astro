@@ -1,5 +1,6 @@
 ---
 import '@fontsource/rajdhani/500.css';
+import { Icon } from 'astro-icon/components';
 ---
 
 <html lang="en">
@@ -51,7 +52,30 @@ import '@fontsource/rajdhani/500.css';
 	</head>
 	<body>
 		<nav class="navbar" aria-label="Primary navigation">
-			<a href="mailto:business@awattoftrouble.com">business@awattoftrouble.com</a>
+			<a class="business-link" href="mailto:business@awattoftrouble.com">business@awattoftrouble.com</a>
+			<div class="social-links" role="group" aria-label="Social media">
+				<a href="https://x.com/AWattOfTrouble" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
+					<Icon name="simple-icons:x" aria-hidden="true" />
+				</a>
+				<a href="https://www.youtube.com/@AWattOfTrouble" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+					<Icon name="simple-icons:youtube" aria-hidden="true" />
+				</a>
+				<a href="https://www.tiktok.com/@AWattOfTrouble" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+					<Icon name="simple-icons:tiktok" aria-hidden="true" />
+				</a>
+				<a href="https://www.reddit.com/r/AWattOfTrouble/" target="_blank" rel="noopener noreferrer" aria-label="Reddit community">
+					<Icon name="simple-icons:reddit" aria-hidden="true" />
+				</a>
+				<a href="https://www.instagram.com/AWattOfTrouble/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+					<Icon name="simple-icons:instagram" aria-hidden="true" />
+				</a>
+				<a href="https://www.facebook.com/AWattOfTrouble" target="_blank" rel="noopener noreferrer" aria-label="Facebook page">
+					<Icon name="simple-icons:facebook" aria-hidden="true" />
+				</a>
+				<a href="https://www.facebook.com/groups/AWattOfTrouble" target="_blank" rel="noopener noreferrer" aria-label="Facebook group">
+					<Icon name="simple-icons:facebook" aria-hidden="true" />
+				</a>
+			</div>
 		</nav>
 
 		<main class="scene" aria-label="Interactive artwork">
@@ -120,8 +144,8 @@ import '@fontsource/rajdhani/500.css';
 					animationFrame = requestAnimationFrame(animate);
 				};
 
-				scene.addEventListener('pointermove', updateTarget);
-				scene.addEventListener('pointerleave', () => {
+				window.addEventListener('pointermove', updateTarget);
+				window.addEventListener('pointerleave', () => {
 					targetX = 0;
 					targetY = 0;
 				});
@@ -173,9 +197,11 @@ import '@fontsource/rajdhani/500.css';
 		z-index: 10;
 		display: flex;
 		align-items: center;
-		justify-content: center;
+		justify-content: space-between;
+		gap: 1rem;
 		width: 100%;
-		height: 4rem;
+		min-height: 4rem;
+		padding: 0.75rem clamp(1rem, 4vw, 3rem);
 		background: rgb(0 0 0 / 28%);
 		backdrop-filter: blur(14px);
 		-webkit-backdrop-filter: blur(14px);
@@ -183,7 +209,7 @@ import '@fontsource/rajdhani/500.css';
 
 	.navbar a {
 		color: #b08a32;
-		font-size: 1.05rem;
+		font-size: 1rem;
 		font-weight: 500;
 		letter-spacing: 0.08em;
 		line-height: 1;
@@ -191,9 +217,45 @@ import '@fontsource/rajdhani/500.css';
 		transition: color 180ms ease;
 	}
 
+	.business-link {
+		white-space: nowrap;
+	}
+
+	.social-links {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: clamp(0.65rem, 2vw, 1.25rem);
+	}
+
+	.social-links a {
+		display: grid;
+		width: 1.5rem;
+		height: 1.5rem;
+		place-items: center;
+	}
+
+	.social-links :global(svg) {
+		display: block;
+		width: 1.15rem;
+		height: 1.15rem;
+		fill: currentColor;
+	}
+
 	.navbar a:hover,
 	.navbar a:focus-visible {
 		color: #d0aa4b;
+	}
+
+	@media (max-width: 640px) {
+		.navbar {
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+
+		.business-link {
+			font-size: 0.9rem;
+		}
 	}
 
 	.scene {
