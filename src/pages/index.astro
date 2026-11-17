@@ -93,17 +93,11 @@ import { Icon } from 'astro-icon/components';
 				<img class="logo" src="/logo.png" alt="A Watt of Trouble" draggable="false" />
 				<a
 					class="download-btn"
-					href="/A%20Watt%20of%20Trouble%200.0.1.zip"
-					download="A Watt of Trouble 0.0.1.zip"
+					href="/play/"
 				>
-					<svg class="download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-						<polyline points="7 10 12 15 17 10" />
-						<line x1="12" y1="15" x2="12" y2="3" />
-					</svg>
 					<div class="btn-text">
-						<span class="btn-primary">A WATT OF TROUBLE</span>
-						<span class="btn-sub">v0.0.1 (Windows)</span>
+						<span class="btn-primary">PLAY NOW</span>
+						<span class="btn-sub">A Watt of Trouble (WebGL)</span>
 					</div>
 				</a>
 			</div>
@@ -376,7 +370,6 @@ import { Icon } from 'astro-icon/components';
 	.download-btn {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.9rem;
 		padding: 0.85rem 1.75rem;
 		color: #f7e7be;
 		background: linear-gradient(135deg, rgba(20, 16, 10, 0.82) 0%, rgba(45, 34, 18, 0.88) 100%);
@@ -403,23 +396,11 @@ import { Icon } from 'astro-icon/components';
 		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 12px rgba(176, 138, 50, 0.2);
 	}
 
-	.download-icon {
-		width: 1.6rem;
-		height: 1.6rem;
-		flex-shrink: 0;
-		color: #e5b64c;
-		transition: transform 200ms ease;
-	}
-
-	.download-btn:hover .download-icon {
-		transform: translateY(2px);
-	}
-
 	.btn-text {
 		display: flex;
 		flex-direction: column;
 		line-height: 1.15;
-		text-align: left;
+		text-align: center;
 	}
 
 	.btn-primary {
@@ -442,7 +423,6 @@ import { Icon } from 'astro-icon/components';
 
 		.download-btn {
 			padding: 0.75rem 1.4rem;
-			gap: 0.75rem;
 		}
 
 		.btn-primary {

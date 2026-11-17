@@ -1,0 +1,285 @@
+---
+import '@fontsource/rajdhani/500.css';
+import { Icon } from 'astro-icon/components';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="/favicon.ico?v=1.0.1" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Play A Watt of Trouble</title>
+	</head>
+	<body>
+		<nav class="navbar" aria-label="Primary navigation">
+			<a class="return-link" href="/">← Return to main page</a>
+			<div class="social-links" role="group" aria-label="Social media">
+				<a href="https://x.com/AWattOfTrouble" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
+					<Icon name="simple-icons:x" aria-hidden="true" />
+				</a>
+				<a href="https://www.youtube.com/@AWattOfTrouble" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+					<Icon name="simple-icons:youtube" aria-hidden="true" />
+				</a>
+				<a href="https://space.bilibili.com/3747569440131527" target="_blank" rel="noopener noreferrer" aria-label="Bilibili">
+					<Icon name="simple-icons:bilibili" aria-hidden="true" />
+				</a>
+				<a href="https://xhslink.cn/o/AOELCgVZcIZ" target="_blank" rel="noopener noreferrer" aria-label="Xiaohongshu">
+					<Icon name="simple-icons:xiaohongshu" aria-hidden="true" />
+				</a>
+				<a href="https://v.douyin.com/JLwMLNblMI0/" target="_blank" rel="noopener noreferrer" aria-label="Douyin">
+					<Icon name="simple-icons:tiktok" aria-hidden="true" />
+				</a>
+				<a href="https://www.tiktok.com/@AWattOfTrouble" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+					<Icon name="simple-icons:tiktok" aria-hidden="true" />
+				</a>
+				<a href="https://www.reddit.com/r/AWattOfTrouble/" target="_blank" rel="noopener noreferrer" aria-label="Reddit community">
+					<Icon name="simple-icons:reddit" aria-hidden="true" />
+				</a>
+				<a href="https://www.instagram.com/AWattOfTrouble/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+					<Icon name="simple-icons:instagram" aria-hidden="true" />
+				</a>
+				<a href="https://www.facebook.com/AWattOfTrouble" target="_blank" rel="noopener noreferrer" aria-label="Facebook page">
+					<Icon name="simple-icons:facebook" aria-hidden="true" />
+				</a>
+				<a href="https://www.facebook.com/groups/AWattOfTrouble" target="_blank" rel="noopener noreferrer" aria-label="Facebook group">
+					<Icon name="simple-icons:facebook" aria-hidden="true" />
+				</a>
+			</div>
+		</nav>
+
+		<main>
+			<div id="unity-splash" class="unity-splash" aria-live="polite">
+				<img class="splash-logo" src="/logo.png" alt="A Watt of Trouble" />
+				<p id="unity-loading-text" class="splash-text">Loading... 0%</p>
+				<div class="splash-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+					<div id="unity-progress-fill" class="splash-progress-fill"></div>
+				</div>
+			</div>
+			<canvas id="unity-canvas" tabindex="-1" aria-label="A Watt of Trouble WebGL game" />
+			<p id="unity-error" class="unity-error" role="alert" hidden></p>
+		</main>
+
+		<script is:inline src="/Game/Build/A%20Watt%20of%20Trouble%20WebGL%200.0.1.loader.js"></script>
+		<script is:inline>
+			const canvas = document.querySelector('#unity-canvas');
+			const errorMessage = document.querySelector('#unity-error');
+			const splash = document.querySelector('#unity-splash');
+			const loadingText = document.querySelector('#unity-loading-text');
+			const progressFill = document.querySelector('#unity-progress-fill');
+			const progressBar = document.querySelector('.splash-progress');
+			let splashDismissed = false;
+
+			const revealGame = () => {
+				if (splashDismissed) return;
+				splashDismissed = true;
+				if (splash) {
+					splash.classList.add('is-hidden');
+					splash.hidden = true;
+				}
+			};
+
+			const updateProgress = (progress) => {
+				const safeProgress = Math.max(0, Math.min(1, Number(progress) || 0));
+				const percent = Math.round(safeProgress * 100);
+				if (loadingText) loadingText.textContent = `Loading... ${percent}%`;
+				if (progressFill) progressFill.style.width = `${percent}%`;
+				if (progressBar) progressBar.setAttribute('aria-valuenow', String(percent));
+				if (percent >= 99) {
+					revealGame();
+				}
+			};
+
+			const showError = (message) => {
+				if (!errorMessage) return;
+				errorMessage.textContent = message;
+				errorMessage.hidden = false;
+				if (loadingText) loadingText.textContent = 'Loading failed';
+			};
+
+			if (!canvas) {
+				showError('Game canvas failed to initialize.');
+			} else if (typeof createUnityInstance !== 'function') {
+				showError('Game loader failed to load.');
+			} else {
+				createUnityInstance(canvas, {
+					arguments: [],
+					dataUrl: '/Game/Build/A%20Watt%20of%20Trouble%20WebGL%200.0.1.data.br',
+					frameworkUrl: '/Game/Build/A%20Watt%20of%20Trouble%20WebGL%200.0.1.framework.js.br',
+					codeUrl: '/Game/Build/A%20Watt%20of%20Trouble%20WebGL%200.0.1.wasm.br',
+					streamingAssetsUrl: '/Game/StreamingAssets',
+					companyName: 'Darketomaly',
+					productName: 'A Watt of Trouble',
+					productVersion: '0.0.1',
+					matchWebGLToCanvasSize: true,
+				}, updateProgress).then(() => {
+					revealGame();
+				}).catch((message) => {
+					showError(typeof message === 'string' ? message : 'Game failed to start.');
+				});
+			}
+		</script>
+	</body>
+</html>
+
+<style>
+	:global(*) {
+		box-sizing: border-box;
+	}
+
+	:global(html),
+	:global(body) {
+		height: 100%;
+		margin: 0;
+	}
+
+	:global(body) {
+		font-family: 'Rajdhani', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+		background: #000;
+		color: #b08a32;
+	}
+
+	.navbar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 10;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		width: 100%;
+		min-height: 4rem;
+		padding: 0.75rem clamp(1rem, 4vw, 3rem);
+		background: rgb(0 0 0 / 28%);
+		backdrop-filter: blur(14px);
+		-webkit-backdrop-filter: blur(14px);
+	}
+
+	.navbar a {
+		color: #b08a32;
+		font-size: 1rem;
+		font-weight: 500;
+		letter-spacing: 0.08em;
+		line-height: 1;
+		text-decoration: none;
+		transition: color 180ms ease;
+	}
+
+	.return-link {
+		white-space: nowrap;
+	}
+
+	.social-links {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: clamp(0.65rem, 2vw, 1.25rem);
+	}
+
+	.social-links a {
+		display: grid;
+		width: 1.5rem;
+		height: 1.5rem;
+		place-items: center;
+	}
+
+	.social-links :global(svg) {
+		display: block;
+		width: 1.15rem;
+		height: 1.15rem;
+		fill: currentColor;
+	}
+
+	.navbar a:hover,
+	.navbar a:focus-visible {
+		color: #d0aa4b;
+	}
+
+	main {
+		position: relative;
+		height: 100vh;
+		padding-top: 4rem;
+	}
+
+	.unity-splash {
+		position: absolute;
+		inset: 4rem 0 0;
+		z-index: 5;
+		display: grid;
+		place-content: center;
+		gap: 1rem;
+		padding: 1.5rem;
+		background: radial-gradient(circle at 50% 28%, rgb(29 24 22 / 80%), rgb(0 0 0 / 96%));
+	}
+
+	.unity-splash[hidden],
+	.unity-splash.is-hidden {
+		display: none !important;
+	}
+
+	.splash-logo {
+		width: min(70vw, 30rem);
+		max-width: 100%;
+		justify-self: center;
+	}
+
+	.splash-text {
+		margin: 0;
+		text-align: center;
+		font-size: 1.1rem;
+		letter-spacing: 0.06em;
+		color: #d0aa4b;
+	}
+
+	.splash-progress {
+		width: min(70vw, 24rem);
+		height: 0.7rem;
+		justify-self: center;
+		background: rgb(255 255 255 / 16%);
+		border: 1px solid rgb(208 170 75 / 45%);
+		border-radius: 999px;
+		overflow: hidden;
+	}
+
+	.splash-progress-fill {
+		width: 0%;
+		height: 100%;
+		background: linear-gradient(90deg, #b08a32, #d0aa4b);
+		transition: width 140ms ease;
+	}
+
+	#unity-canvas {
+		display: block;
+		width: 100%;
+		height: calc(100vh - 4rem);
+		border: 0;
+		background: #2f2d2e;
+	}
+
+	.unity-error {
+		position: fixed;
+		top: calc(4rem + 1rem);
+		left: 50%;
+		z-index: 20;
+		max-width: min(92vw, 48rem);
+		padding: 0.65rem 0.9rem;
+		color: #ffd7d7;
+		font-size: 0.95rem;
+		background: rgb(63 13 13 / 92%);
+		border: 1px solid rgb(170 64 64 / 85%);
+		border-radius: 0.5rem;
+		transform: translateX(-50%);
+	}
+
+	@media (max-width: 640px) {
+		.navbar {
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+
+		.return-link {
+			font-size: 0.9rem;
+		}
+	}
+</style>
