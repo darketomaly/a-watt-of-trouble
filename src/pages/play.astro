@@ -69,14 +69,27 @@ import { Icon } from 'astro-icon/components';
 			const progressFill = document.querySelector('#unity-progress-fill');
 			const progressBar = document.querySelector('.splash-progress');
 			let splashDismissed = false;
+			let revealFallbackTimeout;
+
+			const hideSplash = () => {
+				if (!splash || splash.hidden) return;
+				splash.classList.add('is-fading');
+				const finishHide = () => {
+					splash.hidden = true;
+					splash.classList.remove('is-fading');
+				};
+				splash.addEventListener('transitionend', finishHide, { once: true });
+				setTimeout(finishHide, 500);
+			};
 
 			const revealGame = () => {
 				if (splashDismissed) return;
 				splashDismissed = true;
-				if (splash) {
-					splash.classList.add('is-hidden');
-					splash.hidden = true;
+				if (revealFallbackTimeout) {
+					clearTimeout(revealFallbackTimeout);
+					revealFallbackTimeout = undefined;
 				}
+				hideSplash();
 			};
 
 			const updateProgress = (progress) => {
@@ -86,7 +99,10 @@ import { Icon } from 'astro-icon/components';
 				if (progressFill) progressFill.style.width = `${percent}%`;
 				if (progressBar) progressBar.setAttribute('aria-valuenow', String(percent));
 				if (percent >= 99) {
-					revealGame();
+					if (loadingText) loadingText.textContent = 'Starting...';
+					if (!revealFallbackTimeout) {
+						revealFallbackTimeout = setTimeout(revealGame, 2500);
+					}
 				}
 			};
 
@@ -211,11 +227,18 @@ import { Icon } from 'astro-icon/components';
 		gap: 1rem;
 		padding: 1.5rem;
 		background: radial-gradient(circle at 50% 28%, rgb(29 24 22 / 80%), rgb(0 0 0 / 96%));
+		opacity: 1;
+		transition: opacity 320ms ease;
 	}
 
 	.unity-splash[hidden],
 	.unity-splash.is-hidden {
 		display: none !important;
+	}
+
+	.unity-splash.is-fading {
+		opacity: 0;
+		pointer-events: none;
 	}
 
 	.splash-logo {
@@ -254,7 +277,7 @@ import { Icon } from 'astro-icon/components';
 		width: 100%;
 		height: calc(100vh - 4rem);
 		border: 0;
-		background: #2f2d2e;
+		background: #000;
 	}
 
 	.unity-error {
