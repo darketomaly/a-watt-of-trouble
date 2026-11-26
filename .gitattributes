@@ -1,0 +1,10 @@
+public/Game/Build/*.data filter=lfs diff=lfs merge=lfs -text
+public/Game/Build/*.data.br filter=lfs diff=lfs merge=lfs -text
+public/Game/Build/*.wasm filter=lfs diff=lfs merge=lfs -text
+public/Game/Build/*.wasm.br filter=lfs diff=lfs merge=lfs -text
+public/Game/Build/*.framework.js filter=lfs diff=lfs merge=lfs -text
+public/Game/Build/*.framework.js.br filter=lfs diff=lfs merge=lfs -text
+public/Game/Build/*.bundle filter=lfs diff=lfs merge=lfs -text
+public/Game/Build/*.bundle.br filter=lfs diff=lfs merge=lfs -text
+public/Game/Build/*.symbols.json filter=lfs diff=lfs merge=lfs -text
+public/Game/Build/*.symbols.json.br filter=lfs diff=lfs merge=lfs -text

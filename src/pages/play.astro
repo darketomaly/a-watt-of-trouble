@@ -60,7 +60,6 @@ import { Icon } from 'astro-icon/components';
 			<p id="unity-error" class="unity-error" role="alert" hidden></p>
 		</main>
 
-		<script is:inline src="/Game/Build/A%20Watt%20of%20Trouble%20WebGL%200.0.1.loader.js"></script>
 		<script is:inline>
 			const canvas = document.querySelector('#unity-canvas');
 			const errorMessage = document.querySelector('#unity-error');
@@ -113,27 +112,83 @@ import { Icon } from 'astro-icon/components';
 				if (loadingText) loadingText.textContent = 'Loading failed';
 			};
 
-			if (!canvas) {
-				showError('Game canvas failed to initialize.');
-			} else if (typeof createUnityInstance !== 'function') {
-				showError('Game loader failed to load.');
-			} else {
-				createUnityInstance(canvas, {
-					arguments: [],
-					dataUrl: '/Game/Build/A%20Watt%20of%20Trouble%20WebGL%200.0.1.data.br',
-					frameworkUrl: '/Game/Build/A%20Watt%20of%20Trouble%20WebGL%200.0.1.framework.js.br',
-					codeUrl: '/Game/Build/A%20Watt%20of%20Trouble%20WebGL%200.0.1.wasm.br',
-					streamingAssetsUrl: '/Game/StreamingAssets',
-					companyName: 'Darketomaly',
-					productName: 'A Watt of Trouble',
-					productVersion: '0.0.1',
-					matchWebGLToCanvasSize: true,
-				}, updateProgress).then(() => {
-					revealGame();
-				}).catch((message) => {
-					showError(typeof message === 'string' ? message : 'Game failed to start.');
+			const resolveUnityPath = (pathValue) => {
+				if (!pathValue) return '';
+				if (/^https?:\/\//i.test(pathValue)) return pathValue;
+				return `/Game/${pathValue.replace(/^\.?\//, '')}`;
+			};
+
+			const parseUnityConfigFromIndex = (html) => {
+				const readValue = (key) => {
+					const match = html.match(new RegExp(`${key}\\s*:\\s*["']([^"']+)["']`));
+					return match ? match[1] : '';
+				};
+				const loaderMatch = html.match(/<script\s+src=["']([^"']+loader\.js(?:\.[^"']+)?)["']/i);
+
+				return {
+					loaderUrl: loaderMatch ? resolveUnityPath(loaderMatch[1]) : '',
+					dataUrl: resolveUnityPath(readValue('dataUrl')),
+					frameworkUrl: resolveUnityPath(readValue('frameworkUrl')),
+					codeUrl: resolveUnityPath(readValue('codeUrl')),
+					streamingAssetsUrl: resolveUnityPath(readValue('streamingAssetsUrl')),
+					companyName: readValue('companyName') || 'Darketomaly',
+					productName: readValue('productName') || 'A Watt of Trouble',
+					productVersion: readValue('productVersion') || 'unknown',
+				};
+			};
+
+			const loadScript = (src) =>
+				new Promise((resolve, reject) => {
+					const script = document.createElement('script');
+					script.src = src;
+					script.onload = resolve;
+					script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+					document.head.appendChild(script);
 				});
-			}
+
+			const initUnity = async () => {
+				if (!canvas) {
+					showError('Game canvas failed to initialize.');
+					return;
+				}
+
+				try {
+					const indexResponse = await fetch('/Game/index.html', { cache: 'no-store' });
+					if (!indexResponse.ok) throw new Error(`Failed to read game index: ${indexResponse.status}`);
+					const indexHtml = await indexResponse.text();
+					const config = parseUnityConfigFromIndex(indexHtml);
+
+					if (!config.loaderUrl || !config.dataUrl || !config.frameworkUrl || !config.codeUrl) {
+						throw new Error('Game build config is incomplete.');
+					}
+
+					await loadScript(config.loaderUrl);
+					if (typeof createUnityInstance !== 'function') {
+						throw new Error('Game loader failed to initialize.');
+					}
+
+					await createUnityInstance(
+						canvas,
+						{
+							arguments: [],
+							dataUrl: config.dataUrl,
+							frameworkUrl: config.frameworkUrl,
+							codeUrl: config.codeUrl,
+							streamingAssetsUrl: config.streamingAssetsUrl || '/Game/StreamingAssets',
+							companyName: config.companyName,
+							productName: config.productName,
+							productVersion: config.productVersion,
+							matchWebGLToCanvasSize: true,
+						},
+						updateProgress
+					);
+					revealGame();
+				} catch (error) {
+					showError(error instanceof Error ? error.message : 'Game failed to start.');
+				}
+			};
+
+			initUnity();
 		</script>
 	</body>
 </html>
