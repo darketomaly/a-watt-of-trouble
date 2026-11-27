@@ -56,6 +56,11 @@ function getHeaders(filePath) {
 	const ext = path.extname(effectivePath).toLowerCase();
 	headers['Content-Type'] = contentTypeByExtension[ext] || 'application/octet-stream';
 	if (isBrotli) headers['Content-Encoding'] = 'br';
+	headers['Content-Length'] = String(fs.statSync(filePath).size);
+	const unityBuildSegment = `${path.sep}Game${path.sep}Build${path.sep}`;
+	if (filePath.includes(unityBuildSegment)) {
+		headers['Cache-Control'] = 'public, max-age=0, must-revalidate';
+	}
 	if (path.basename(filePath) === 'index.html') {
 		headers['Cache-Control'] = 'no-cache';
 	}
