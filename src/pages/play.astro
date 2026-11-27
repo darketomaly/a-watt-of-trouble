@@ -157,12 +157,17 @@ import { Icon } from 'astro-icon/components';
 					if (!indexResponse.ok) throw new Error(`Failed to read game index: ${indexResponse.status}`);
 					const indexHtml = await indexResponse.text();
 					const config = parseUnityConfigFromIndex(indexHtml);
+					const versionToken = encodeURIComponent(config.productVersion || 'webgl');
+					const withVersion = (url) => {
+						if (!url) return url;
+						return url.includes('?') ? `${url}&v=${versionToken}` : `${url}?v=${versionToken}`;
+					};
 
 					if (!config.loaderUrl || !config.dataUrl || !config.frameworkUrl || !config.codeUrl) {
 						throw new Error('Game build config is incomplete.');
 					}
 
-					await loadScript(config.loaderUrl);
+					await loadScript(withVersion(config.loaderUrl));
 					if (typeof createUnityInstance !== 'function') {
 						throw new Error('Game loader failed to initialize.');
 					}
@@ -171,10 +176,10 @@ import { Icon } from 'astro-icon/components';
 						canvas,
 						{
 							arguments: [],
-							dataUrl: config.dataUrl,
-							frameworkUrl: config.frameworkUrl,
-							codeUrl: config.codeUrl,
-							streamingAssetsUrl: config.streamingAssetsUrl || '/Game/StreamingAssets',
+							dataUrl: withVersion(config.dataUrl),
+							frameworkUrl: withVersion(config.frameworkUrl),
+							codeUrl: withVersion(config.codeUrl),
+							streamingAssetsUrl: withVersion(config.streamingAssetsUrl || '/Game/StreamingAssets'),
 							companyName: config.companyName,
 							productName: config.productName,
 							productVersion: config.productVersion,
